@@ -3,7 +3,6 @@ package com.dalal.boukingandreviewservicepfe.entities;
 import com.dalal.boukingandreviewservicepfe.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -14,40 +13,32 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "reservations")
-public class Reservation  {
+public class Reservation {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @Column(name = "date_rdv")
+    @Column(name = "date_rdv", nullable = false)
     private LocalDateTime dateRdv;
 
     @Column(name = "duree_reel")
     private Integer dureeReel;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private BookingStatus status;
 
-    /* start logical FKs */
-    @Column(name = "id_client")
+    /* Logical Foreign Keys */
+    @Column(name = "id_client", nullable = false)
     private Long idClient;
 
-    @Column(name = "id_provider")
+    @Column(name = "id_provider", nullable = false)
     private Long idProvider;
 
-    @Column(name = "id_service")
+    @Column(name = "id_service", nullable = false)
     private Long idService;
-    /* end logical FKs */
 
-    @Column(name = "date_publication",updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @Column(name = "commentaire")
-    private String comment;
-
-    @OneToOne(mappedBy = "id_reservation")
+    @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)
     private Review review;
-
 }

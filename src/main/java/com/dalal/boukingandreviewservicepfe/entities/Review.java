@@ -14,19 +14,22 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "reviews")
 public class Review {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "recommandation")
+    @Column(name = "recommandation", nullable = false)
     private Boolean isRecommended;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime publishAt;
+    @Column(name = "commentaire", columnDefinition = "TEXT")
+    private String comment;
 
-    // je pense que c'est pas logique que une fois la review supprimer la reservation supprimé
-    @OneToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "id_reservation")
+    @CreationTimestamp
+    @Column(name = "date_publication", updatable = false)
+    private LocalDateTime datePublication;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_reservation", nullable = false, unique = true)
     private Reservation reservation;
 }
