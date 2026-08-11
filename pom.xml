@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.dalal</groupId>
-    <artifactId>bouking-and-review-service-pfe</artifactId>
+    <artifactId>booking-and-review-service-pfe</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>bouking-and-review-service-pfe</name>
-    <description>bouking-and-review-service-pfe</description>
+    <name>booking-and-review-service-pfe</name>
+    <description>booking-and-review-service-pfe</description>
     <url/>
     <licenses>
         <license/>
@@ -120,6 +120,18 @@
         </dependency>
 
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
