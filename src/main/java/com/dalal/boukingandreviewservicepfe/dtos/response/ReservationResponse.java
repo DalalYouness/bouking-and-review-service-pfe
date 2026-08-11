@@ -1,4 +1,4 @@
-package com.dalal.boukingandreviewservicepfe.dtos.request;
+package com.dalal.boukingandreviewservicepfe.dtos.response;
 
 import com.dalal.boukingandreviewservicepfe.enums.BookingStatus;
 
