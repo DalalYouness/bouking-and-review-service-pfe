@@ -12,7 +12,7 @@ public interface ReviewMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "datePublication", ignore = true)
-    @Mapping(target = "reservation", ignore = true) // غانربطوها بـ Entity Reservation فـ Service Layer
+    @Mapping(target = "reservation", ignore = true)
     Review toEntity(ReviewCreateRequest request);
 
     @Mapping(source = "datePublication", target = "createdAt")
@@ -25,6 +25,6 @@ public interface ReviewMapper {
     @Mapping(target = "providerId", ignore = true)
     @Mapping(target = "providerName", ignore = true)
     @Mapping(target = "serviceName", ignore = true)
-    @Mapping(target = "rating", expression = "java(review.getIsRecommended() != null && review.getIsRecommended() ? 5 : 1)")
+    @Mapping(target = "rating", ignore = true)
     ClientReviewHistoryResponse toClientHistoryResponse(Review review);
 }
