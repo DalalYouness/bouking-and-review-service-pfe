@@ -151,7 +151,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException("Validation request payload cannot be null");
         }
 
-        // 2. Apply State Transition: PENDING -> CONFIRMED
+        // 2. Apply State Transition: PENDING --> CONFIRMED
         Reservation confirmedReservation = applyStatusTransition(reservationId, BookingStatus.PENDING, BookingStatus.CONFIRMED);
 
         // 3. Asynchronous Integration Event (Deferred Task)
