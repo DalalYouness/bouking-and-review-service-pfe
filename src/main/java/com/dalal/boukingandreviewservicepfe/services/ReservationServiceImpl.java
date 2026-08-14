@@ -10,6 +10,9 @@ import com.dalal.boukingandreviewservicepfe.exceptions.ResourceNotFoundException
 import com.dalal.boukingandreviewservicepfe.mappers.ReservationMapper;
 import com.dalal.boukingandreviewservicepfe.repositories.ReservationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,8 +91,17 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<ReservationResponse> getClientReservations(Long clientId) {
-        return List.of();
+    public Page<ReservationResponse> getClientReservations(Long clientId, Pageable pageable) {
+        // 1. Guard Clause: Protection against null inputs
+        if (clientId == null) {
+            throw new IllegalArgumentException("Client id cannot be null");
+        }
+
+        // 2. Fetch Page of Entities from Repository
+        Page<Reservation> reservationPage = reservationRepository.findByIdClient(clientId, pageable);
+
+        // 3. Transform Page<Reservation> -> Page<ReservationResponse>
+        return reservationPage.map(reservationMapper::toResponse);
     }
 
     @Override
