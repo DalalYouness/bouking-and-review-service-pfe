@@ -15,6 +15,8 @@ import com.dalal.boukingandreviewservicepfe.mappers.ReviewMapper;
 import com.dalal.boukingandreviewservicepfe.repositories.ReservationRepository;
 import com.dalal.boukingandreviewservicepfe.repositories.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,12 +68,20 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ClientReviewHistoryResponse> getClientReviewHistory(Long clientId) {
-        // validation
-        if(clientId == null) {
+    @Transactional(readOnly = true)
+    public Page<ClientReviewHistoryResponse> getClientReviewHistory(Long clientId, Pageable pageable) {
+        // 1. Validation (Guard Clause)
+        if (clientId == null) {
             throw new IllegalArgumentException("Client id cannot be null");
         }
-        return List.of();
+        // 2. Business Validation (External Dependency - Deferred)
+        // TODO: Verify if client exists via userClient/identity-service
+
+        // 3. Fetch Data with Pagination
+        Page<Review> reviews = reviewRepository.findByReservationIdClient(clientId, pageable);
+
+        // 4. Map Page<Entity> -> Page<DTO>
+        return reviews.map(reviewMapper::toClientHistoryResponse);
     }
 
     @Override

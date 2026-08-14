@@ -5,6 +5,8 @@ import com.dalal.boukingandreviewservicepfe.dtos.request.ReviewCreateRequest;
 import com.dalal.boukingandreviewservicepfe.dtos.response.ClientReviewHistoryResponse;
 import com.dalal.boukingandreviewservicepfe.dtos.response.ProviderDashboardSatisfactionResponse;
 import com.dalal.boukingandreviewservicepfe.dtos.response.ReviewResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ public interface ReviewService {
     ReviewResponse createReview(ReviewCreateRequest request);
 
     // 2. Client : Lister ses propres recommendations/avis
-    List<ClientReviewHistoryResponse> getClientReviewHistory(Long clientId);
+    Page<ClientReviewHistoryResponse> getClientReviewHistory(Long clientId, Pageable pageable);
 
     // 3. Visiteur/Client : Consulter la note globale et les avis d'un prestataire
     List<ReviewResponse> getProviderReviews(Long providerId);
