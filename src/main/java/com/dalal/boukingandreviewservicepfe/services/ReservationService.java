@@ -16,7 +16,7 @@ public interface ReservationService {
     Page<ReservationResponse> getClientReservations(Long clientId, Pageable pageable);
 
     // --- Provider Use Cases ---
-    List<ReservationResponse> getProviderReservations(Long providerId);
+    Page<ReservationResponse> getProviderReservations(Long providerId,Pageable pageable);
     ReservationResponse rejectReservation(Long reservationId);
     ReservationResponse validateReservation(Long reservationId, ReservationValidateRequest request);
     ReservationResponse completeReservation(Long reservationId);

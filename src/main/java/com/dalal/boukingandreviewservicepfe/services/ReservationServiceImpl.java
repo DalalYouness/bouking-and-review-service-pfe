@@ -33,6 +33,7 @@ public class ReservationServiceImpl implements ReservationService {
     // --- Asynchronous Event Publisher (Kafka) ---
 //    private final KafkaTemplate<String, ReservationCreatedEvent> kafkaTemplate;
 
+    /* --  Client use cases --- */
     @Override
     public ReservationResponse createReservation(ReservationCreateRequest reservationCreateRequest) {
         // 1. validation (guard clause)
@@ -104,9 +105,15 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationPage.map(reservationMapper::toResponse);
     }
 
+    /* --  Provider use cases --- */
     @Override
-    public List<ReservationResponse> getProviderReservations(Long providerId) {
-        return List.of();
+    public Page<ReservationResponse> getProviderReservations(Long providerId,Pageable pageable) {
+        if (providerId == null) {
+            throw new IllegalArgumentException("Provider id cannot be null");
+        }
+        Page<Reservation> reservationPage = reservationRepository.findByIdProvider(providerId, pageable);
+
+        return reservationPage.map(reservationMapper::toResponse);
     }
 
     @Override
