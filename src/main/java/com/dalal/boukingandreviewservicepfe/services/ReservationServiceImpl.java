@@ -163,7 +163,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationResponse completeReservation(Long reservationId) {
-        // 1. Apply State Transition: CONFIRMED -> COMPLETED
+        // 1. Apply State Transition: CONFIRMED --> COMPLETED
         Reservation completedReservation = applyStatusTransition(reservationId, BookingStatus.CONFIRMED, BookingStatus.COMPLETED);
 
         // 2. Asynchronous Integration Event (Deferred Task)
