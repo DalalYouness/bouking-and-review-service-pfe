@@ -63,7 +63,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new IllegalArgumentException("Reservation id cannot be null");
         }
 
-        // 2. Fetch Entity & Business Check: Ensure the reservation exists
+        // 2. Fetch Entity and Business Check: Ensure the reservation exists
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> ResourceNotFoundException.forReservation(reservationId));
 
