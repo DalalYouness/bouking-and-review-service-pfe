@@ -1,6 +1,6 @@
 package com.dalal.boukingandreviewservicepfe.services;
 
-import com.dalal.boukingandreviewservicepfe.dtos.request.ProviderStatsResponse;
+import com.dalal.boukingandreviewservicepfe.dtos.response.ProviderStatsResponse;
 import com.dalal.boukingandreviewservicepfe.dtos.request.ReviewCreateRequest;
 import com.dalal.boukingandreviewservicepfe.dtos.response.ClientReviewHistoryResponse;
 import com.dalal.boukingandreviewservicepfe.dtos.response.ProviderDashboardSatisfactionResponse;
@@ -8,9 +8,9 @@ import com.dalal.boukingandreviewservicepfe.dtos.response.ReviewResponse;
 import com.dalal.boukingandreviewservicepfe.entities.Reservation;
 import com.dalal.boukingandreviewservicepfe.entities.Review;
 import com.dalal.boukingandreviewservicepfe.enums.BookingStatus;
-import com.dalal.boukingandreviewservicepfe.exceptions.DuplicateResourceException;
 import com.dalal.boukingandreviewservicepfe.exceptions.InvalidReservationStateException;
 import com.dalal.boukingandreviewservicepfe.exceptions.ResourceNotFoundException;
+import com.dalal.boukingandreviewservicepfe.exceptions.ReviewAlreadyExistsException;
 import com.dalal.boukingandreviewservicepfe.mappers.ReviewMapper;
 import com.dalal.boukingandreviewservicepfe.repositories.ReservationRepository;
 import com.dalal.boukingandreviewservicepfe.repositories.ReviewRepository;
@@ -19,8 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +50,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         if (reviewRepository.existsByReservationId(request.reservationId())) {
-            throw new DuplicateResourceException("A review has already been submitted for this reservation");
+            throw ReviewAlreadyExistsException.forReservation(request.reservationId());
         }
 
         // 3. Mapping: Request -> Entity
@@ -134,8 +132,37 @@ public class ReviewServiceImpl implements ReviewService {
 
     // all users : Consulter la note globale et les avis / il retourne la note global
     @Override
+    @Transactional(readOnly = true)
     public ProviderStatsResponse getProviderStats(Long providerId) {
-        return null;
+        // 1. Validation (Guard Clause)
+        if (providerId == null) {
+            throw new IllegalArgumentException("Provider id cannot be null");
+        }
+
+        // 2. Business Validation
+        // TODO: Verify provider existence via identity-service (OpenFeign)
+
+        // 3. Fetch Aggregate Data
+        long totalReviews = reviewRepository.countTotalReviewsByProviderId(providerId);
+
+        // 4. Handle Division by Zero Edge Case
+        if (totalReviews == 0) {
+            return ProviderStatsResponse.builder()
+                    .providerId(providerId)
+                    .totalClientsVotants(0L)
+                    .tauxRecommandation(0.0)
+                    .build();
+        }
+
+        // 5. Fetch Positive Reviews & Calculate Percentage
+        long positiveReviews = reviewRepository.countPositiveReviewsByProviderId(providerId);
+        double tauxRecommendation = (positiveReviews * 100.0) / totalReviews;
+
+        return ProviderStatsResponse.builder()
+                .providerId(providerId)
+                .totalClientsVotants(totalReviews)
+                .tauxRecommandation(tauxRecommendation)
+                .build();
     }
 
     // Prestataire : Consulter son tableau de bord de satisfaction
