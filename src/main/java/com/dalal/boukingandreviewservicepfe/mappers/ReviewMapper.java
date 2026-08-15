@@ -16,7 +16,7 @@ public interface ReviewMapper {
     Review toEntity(ReviewCreateRequest request);
 
     @Mapping(source = "datePublication", target = "createdAt")
-    @Mapping(source = "reservation.idClient", target = "idClient")
+    //@Mapping(source = "reservation.idClient", target = "idClient")
     @Mapping(target = "clientName", ignore = true)
     ReviewResponse toResponse(Review review);
 
