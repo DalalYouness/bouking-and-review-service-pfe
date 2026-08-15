@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ReviewServiceImpl implements ReviewService {
     // local dependencies
     private final ReviewRepository reviewRepository;
@@ -35,6 +34,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     // Client : Voter un prestataire (+ Extend : Ajouter un avis textuel)
     @Override
+    @Transactional
     public ReviewResponse createReview(ReviewCreateRequest request) {
         // 1. Validation (Guard Clause)
         if (request == null) {
@@ -167,8 +167,38 @@ public class ReviewServiceImpl implements ReviewService {
 
     // Prestataire : Consulter son tableau de bord de satisfaction
     @Override
+    @Transactional(readOnly = true)
     public ProviderDashboardSatisfactionResponse getProviderSatisfactionDashboard(Long providerId) {
-        return null;
+        // 1. Validation (Guard Clause)
+        if (providerId == null) {
+            throw new IllegalArgumentException("Provider id cannot be null");
+        }
+
+        // 2. Business Validation
+        // TODO: Verify provider existence via identity-service (OpenFeign)
+
+        // 3. Aggregate Queries & Calculation
+        long totalVotes = reviewRepository.countTotalReviewsByProviderId(providerId);
+
+        if (totalVotes == 0) {
+            return ProviderDashboardSatisfactionResponse.builder()
+                    .providerId(providerId)
+                    .tauxRecommendation(0.0)
+                    .positiveVotesCount(0L)
+                    .negativeVotesCount(0L)
+                    .build();
+        }
+
+        long positiveVotes = reviewRepository.countPositiveReviewsByProviderId(providerId);
+        long negativeVotes = totalVotes - positiveVotes;
+        double tauxRecommendation = (positiveVotes * 100.0) / totalVotes;
+
+        return ProviderDashboardSatisfactionResponse.builder()
+                .providerId(providerId)
+                .tauxRecommendation(tauxRecommendation)
+                .positiveVotesCount(positiveVotes)
+                .negativeVotesCount(negativeVotes)
+                .build();
     }
 
 }
