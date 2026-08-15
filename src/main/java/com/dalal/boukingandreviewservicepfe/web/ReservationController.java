@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class ReservationController {
     @GetMapping("/client/{clientId}")
     public ResponseEntity<Page<ReservationResponse>> getClientReservations(
             @PathVariable Long clientId,
-            @PageableDefault(size = 10, sort = "dateDemande") Pageable pageable) {
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(reservationService.getClientReservations(clientId, pageable));
     }
 
@@ -55,7 +56,7 @@ public class ReservationController {
     @GetMapping("/provider/{providerId}")
     public ResponseEntity<Page<ReservationResponse>> getProviderReservations(
             @PathVariable Long providerId,
-            @PageableDefault(size = 10, sort = "dateDemande") Pageable pageable) {
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(reservationService.getProviderReservations(providerId, pageable));
     }
 
