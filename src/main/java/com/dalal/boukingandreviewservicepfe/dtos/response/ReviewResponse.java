@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 
 public record ReviewResponse(
         Long id,
-        Long idClient,
+        // Long idClient, for future use , because it would be useful if we want display client profil
+        // Long reservationId
         String clientName,
-        Integer rating,         // between 1 and 5
         String comment,
-        boolean isRecommended,  // true and rate >= 4
+        boolean isRecommended,
         LocalDateTime createdAt // pub date
 ) {}

@@ -18,13 +18,11 @@ public interface ReviewMapper {
     @Mapping(source = "datePublication", target = "createdAt")
     @Mapping(source = "reservation.idClient", target = "idClient")
     @Mapping(target = "clientName", ignore = true)
-    @Mapping(target = "rating", expression = "java(review.getIsRecommended() != null && review.getIsRecommended() ? 5 : 1)")
     ReviewResponse toResponse(Review review);
 
     @Mapping(source = "datePublication", target = "createdAt")
     @Mapping(target = "providerId", ignore = true)
     @Mapping(target = "providerName", ignore = true)
     @Mapping(target = "serviceName", ignore = true)
-    @Mapping(target = "rating", ignore = true)
     ClientReviewHistoryResponse toClientHistoryResponse(Review review);
 }

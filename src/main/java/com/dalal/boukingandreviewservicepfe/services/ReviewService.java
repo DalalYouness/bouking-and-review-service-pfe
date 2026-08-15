@@ -19,7 +19,7 @@ public interface ReviewService {
     Page<ClientReviewHistoryResponse> getClientReviewHistory(Long clientId, Pageable pageable);
 
     // 3. Visiteur/Client : Consulter la note globale et les avis d'un prestataire
-    List<ReviewResponse> getProviderReviews(Long providerId);
+    Page<ReviewResponse> getProviderReviews(Long providerId,Pageable pageable);
 
     // 4. Prestataire: Consulter son tableau de bord de satisfaction
     ProviderDashboardSatisfactionResponse getProviderSatisfactionDashboard(Long providerId);

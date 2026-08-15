@@ -7,7 +7,6 @@ public record ClientReviewHistoryResponse(
         Long providerId,
         String providerName,
         String serviceName,
-        Integer rating,
         String comment,
         boolean isRecommended,
         LocalDateTime createdAt

@@ -35,6 +35,7 @@ public class ReviewServiceImpl implements ReviewService {
     //       rest clients after + asynchronous services
 
 
+    // Client : Voter un prestataire (+ Extend : Ajouter un avis textuel)
     @Override
     public ReviewResponse createReview(ReviewCreateRequest request) {
         // 1. Validation (Guard Clause)
@@ -67,6 +68,7 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.toResponse(savedReview);
     }
 
+    // Client : Lister ses propres recommendations
     @Override
     @Transactional(readOnly = true)
     public Page<ClientReviewHistoryResponse> getClientReviewHistory(Long clientId, Pageable pageable) {
@@ -74,28 +76,72 @@ public class ReviewServiceImpl implements ReviewService {
         if (clientId == null) {
             throw new IllegalArgumentException("Client id cannot be null");
         }
-        // 2. Business Validation (External Dependency - Deferred)
-        // TODO: Verify if client exists via userClient/identity-service
 
-        // 3. Fetch Data with Pagination
+        // 2. Fetch Data with Pagination
         Page<Review> reviews = reviewRepository.findByReservationIdClient(clientId, pageable);
 
-        // 4. Map Page<Entity> -> Page<DTO>
-        return reviews.map(reviewMapper::toClientHistoryResponse);
+        // 3. Map Page<Entity> -> Page<DTO> with External Data Resolution
+        return reviews.map(review -> {
+            Reservation reservation = review.getReservation();
+
+            // TODO: Call Identity-Service via OpenFeign to get real Provider Name
+            String providerName = "Provider Name Placeholder";
+
+            // TODO: Call Provider-Content-Service via OpenFeign to get real Service Name
+            String serviceName = "Service Name Placeholder";
+
+            return new ClientReviewHistoryResponse(
+                    review.getId(),
+                    reservation.getIdProvider(),
+                    providerName,
+                    serviceName,
+                    review.getComment(),
+                    review.getIsRecommended(),
+                    review.getDatePublication()
+            );
+        });
     }
 
+    // all users : Consulter la note globale et les avis / il retourne les avis
     @Override
-    public List<ReviewResponse> getProviderReviews(Long providerId) {
-        return List.of();
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getProviderReviews(Long providerId, Pageable pageable) {
+        // 1. Validation (Guard Clause)
+        if (providerId == null) {
+            throw new IllegalArgumentException("Provider id cannot be null");
+        }
+
+        // 2. Business Validation
+        // TODO: Call identity-service via OpenFeign to verify provider existence
+
+        // 3. Fetch Paginated Data
+        Page<Review> reviews = reviewRepository.findByReservationIdProvider(providerId, pageable);
+
+        // 4. Map to DTO with External Data Resolution
+        return reviews.map(review -> {
+            // TODO: Call identity-service via OpenFeign using review.getReservation().getIdClient() to get real client name
+            String clientName = "Client Placeholder";
+
+            return new ReviewResponse(
+                    review.getId(),
+                    clientName,
+                    review.getComment(),
+                    review.getIsRecommended(),
+                    review.getDatePublication()
+            );
+        });
     }
 
+    // all users : Consulter la note globale et les avis / il retourne la note global
+    @Override
+    public ProviderStatsResponse getProviderStats(Long providerId) {
+        return null;
+    }
+
+    // Prestataire : Consulter son tableau de bord de satisfaction
     @Override
     public ProviderDashboardSatisfactionResponse getProviderSatisfactionDashboard(Long providerId) {
         return null;
     }
 
-    @Override
-    public ProviderStatsResponse getProviderStats(Long providerId) {
-        return null;
-    }
 }
