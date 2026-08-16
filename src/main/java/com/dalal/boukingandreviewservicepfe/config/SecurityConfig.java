@@ -1,5 +1,8 @@
 package com.dalal.boukingandreviewservicepfe.config;
 
+import com.dalal.boukingandreviewservicepfe.security.CustomAccessDeniedHandler;
+import com.dalal.boukingandreviewservicepfe.security.CustomAuthenticationEntryPoint;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -12,7 +15,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain  securityFilterChain(HttpSecurity http) throws Exception {
@@ -32,7 +38,10 @@ public class SecurityConfig {
                             // any other request have to have authenticated
                             // we handle that authorisation either in that security config but preferable to use it inside controllers
                             .anyRequest().authenticated()
-                    );
+                    )
+                    .exceptionHandling(ex -> ex
+                            .authenticationEntryPoint(customAuthenticationEntryPoint)
+                            .accessDeniedHandler(customAccessDeniedHandler));
             return http.build();
     }
 }
