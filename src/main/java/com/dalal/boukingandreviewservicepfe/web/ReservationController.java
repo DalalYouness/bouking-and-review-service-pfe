@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +28,7 @@ public class ReservationController {
 
     // 1. Client : Créer une nouvelle réservation
     @PostMapping
+    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<ReservationResponse> createReservation(
             @Valid @RequestBody ReservationCreateRequest request) {
         ReservationResponse response = reservationService.createReservation(request);
@@ -34,6 +36,7 @@ public class ReservationController {
     }
 
     // 2. Client : Annuler sa propre réservation (PENDING -> CANCELLED)
+    @PreAuthorize("hasRole('CLIENT')")
     @PatchMapping("/{reservationId}/cancel")
     public ResponseEntity<ReservationResponse> cancelReservation(
             @PathVariable Long reservationId) {
@@ -42,6 +45,7 @@ public class ReservationController {
 
     // 3. Client : Consulter l'historique de ses réservations (Paginated)
     @GetMapping("/client/{clientId}")
+    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<Page<ReservationResponse>> getClientReservations(
             @PathVariable Long clientId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -54,6 +58,7 @@ public class ReservationController {
 
     // 4. Provider : Consulter les demandes de réservation reçues (Paginated)
     @GetMapping("/provider/{providerId}")
+    @PreAuthorize("hasRole('PRESTATAIRE')")
     public ResponseEntity<Page<ReservationResponse>> getProviderReservations(
             @PathVariable Long providerId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -62,6 +67,7 @@ public class ReservationController {
 
     // 5. Provider : Valider/Confirmer une réservation (PENDING -> CONFIRMED)
     @PatchMapping("/{reservationId}/validate")
+    @PreAuthorize("hasRole('PRESTATAIRE')")
     public ResponseEntity<ReservationResponse> validateReservation(
             @PathVariable Long reservationId,
             @Valid @RequestBody ReservationValidateRequest request) {
@@ -70,6 +76,7 @@ public class ReservationController {
 
     // 6. Provider : Refuser une demande de réservation (PENDING -> REJECTED)
     @PatchMapping("/{reservationId}/reject")
+    @PreAuthorize("hasRole('PRESTATAIRE')")
     public ResponseEntity<ReservationResponse> rejectReservation(
             @PathVariable Long reservationId) {
         return ResponseEntity.ok(reservationService.rejectReservation(reservationId));
@@ -77,6 +84,7 @@ public class ReservationController {
 
     // 7. Provider : Marquer la prestation comme terminée (CONFIRMED -> COMPLETED)
     @PatchMapping("/{reservationId}/complete")
+    @PreAuthorize("hasRole('PRESTATAIRE')")
     public ResponseEntity<ReservationResponse> completeReservation(
             @PathVariable Long reservationId) {
         return ResponseEntity.ok(reservationService.completeReservation(reservationId));

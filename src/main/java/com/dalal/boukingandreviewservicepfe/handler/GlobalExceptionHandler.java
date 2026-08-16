@@ -18,7 +18,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. DTO Validation Failures (@Valid -> HTTP 400 BAD REQUEST)
+    /* Spring Web / Validation Exceptions */
+    // 1. Validation DTO (@Valid -> HTTP 400 BAD REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(
             MethodArgumentNotValidException e,
@@ -43,6 +44,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    /* Custom Business Exceptions handling + Standard Java Exceptions used */
+
     // 2. Resource Introuvable (HTTP 404 NOT FOUND)
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
@@ -60,10 +63,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-    // 3. État Invalide ou Guard Clause Failure (HTTP 400 BAD REQUEST)
-    @ExceptionHandler({InvalidReservationStateException.class, IllegalArgumentException.class})
-    public ResponseEntity<ErrorResponse> handleBadRequestExceptions(
-            RuntimeException e,
+
+    // 3. Argument Invalide ou Guard Clause Failure (HTTP 400 BAD REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
+            IllegalArgumentException e,
             HttpServletRequest request) {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -77,7 +81,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    // 4. Double Vote / Conflit d'Avis (HTTP 409 CONFLICT)
+    // 4. État Invalide de Réservation (HTTP 409 CONFLICT)
+    @ExceptionHandler(InvalidReservationStateException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidReservationStateException(
+            InvalidReservationStateException e,
+            HttpServletRequest request) {
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error(HttpStatus.CONFLICT.getReasonPhrase())
+                .message(e.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    // 5. Double Vote / Conflit d'Avis (HTTP 409 CONFLICT)
     @ExceptionHandler(ReviewAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleReviewAlreadyExistsException(
             ReviewAlreadyExistsException e,
@@ -94,7 +115,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
-    // 5. Catch-All Generic Exception (HTTP 500 INTERNAL SERVER ERROR)
+    // Catch-All Safety Net
+    // 6. Catch-All Generic Exception (HTTP 500 INTERNAL SERVER ERROR)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception e,

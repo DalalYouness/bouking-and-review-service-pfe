@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,6 +30,7 @@ public class ReviewController {
 
     // 1. Client : Ajouter un avis / voter pour une prestation terminée
     @PostMapping
+    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<ReviewResponse> createReview(
             @Valid @RequestBody ReviewCreateRequest request) {
         ReviewResponse response = reviewService.createReview(request);
@@ -37,6 +39,7 @@ public class ReviewController {
 
     // 2. Client : Consulter ses propres avis (Historique paginé par date de publication)
     @GetMapping("/client/{clientId}")
+    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<Page<ClientReviewHistoryResponse>> getClientReviewHistory(
             @PathVariable Long clientId,
             @PageableDefault(size = 10, sort = "datePublication", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -49,6 +52,7 @@ public class ReviewController {
 
     // 3. All Users : Consulter la liste des avis d'un prestataire (Paginé)
     @GetMapping("/provider/{providerId}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<Page<ReviewResponse>> getProviderReviews(
             @PathVariable Long providerId,
             @PageableDefault(size = 10, sort = "datePublication", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -57,6 +61,7 @@ public class ReviewController {
 
     // 4. All Users : Consulter les statistiques / Note global d'un prestataire
     @GetMapping("/provider/{providerId}/stats")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<ProviderStatsResponse> getProviderStats(
             @PathVariable Long providerId) {
         return ResponseEntity.ok(reviewService.getProviderStats(providerId));
@@ -68,6 +73,7 @@ public class ReviewController {
 
     // 5. Provider : Consulter le tableau de bord de satisfaction
     @GetMapping("/provider/{providerId}/dashboard")
+    @PreAuthorize("hasRole('PRESTATAIRE')")
     public ResponseEntity<ProviderDashboardSatisfactionResponse> getProviderSatisfactionDashboard(
             @PathVariable Long providerId) {
         return ResponseEntity.ok(reviewService.getProviderSatisfactionDashboard(providerId));
