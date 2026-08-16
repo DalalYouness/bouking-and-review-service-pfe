@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
     @Bean
     public SecurityFilterChain  securityFilterChain(HttpSecurity http) throws Exception {
             http.formLogin(AbstractHttpConfigurer::disable)
@@ -32,8 +33,6 @@ public class SecurityConfig {
                             // we handle that authorisation either in that security config but preferable to use it inside controllers
                             .anyRequest().authenticated()
                     );
-
-
             return http.build();
     }
 }
