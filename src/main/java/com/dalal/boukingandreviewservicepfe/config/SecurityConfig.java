@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private JwtAuthenticationFilter  jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter  jwtAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain  securityFilterChain(HttpSecurity http) throws Exception {
