@@ -57,7 +57,7 @@ public class JwtService {
     }
 
     /*
-     * ARCHITECTURAL NOTE ON TOKEN VALIDATION:
+     * NOTE ON TOKEN VALIDATION:
      *
      * I explicitly omitted a custom `isTokenValid()` or `isTokenExpired()` method here.
      *
