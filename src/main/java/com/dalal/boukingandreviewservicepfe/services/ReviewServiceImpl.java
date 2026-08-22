@@ -1,5 +1,6 @@
 package com.dalal.boukingandreviewservicepfe.services;
 
+import com.dalal.boukingandreviewservicepfe.dtos.event.ReviewCreatedEvent;
 import com.dalal.boukingandreviewservicepfe.dtos.response.ProviderStatsResponse;
 import com.dalal.boukingandreviewservicepfe.dtos.request.ReviewCreateRequest;
 import com.dalal.boukingandreviewservicepfe.dtos.response.ClientReviewHistoryResponse;
@@ -12,6 +13,7 @@ import com.dalal.boukingandreviewservicepfe.exceptions.InvalidReservationStateEx
 import com.dalal.boukingandreviewservicepfe.exceptions.ResourceNotFoundException;
 import com.dalal.boukingandreviewservicepfe.exceptions.ReviewAlreadyExistsException;
 import com.dalal.boukingandreviewservicepfe.mappers.ReviewMapper;
+import com.dalal.boukingandreviewservicepfe.messaging.ReviewEventProducer;
 import com.dalal.boukingandreviewservicepfe.repositories.ReservationRepository;
 import com.dalal.boukingandreviewservicepfe.repositories.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,8 @@ public class ReviewServiceImpl implements ReviewService {
     // TODO: wi will need
     //       rest clients after + asynchronous services
 
+    // async
+    private final ReviewEventProducer  reviewEventProducer;
 
     // Client : Voter un prestataire (+ Extend : Ajouter un avis textuel)
     @Override
@@ -60,7 +64,17 @@ public class ReviewServiceImpl implements ReviewService {
         // 4. Persistence
         Review savedReview = reviewRepository.save(review);
 
-        // TODO: Notify the provider via Kafka/Event that he has a new review
+        // async
+        ReviewCreatedEvent reviewCreatedEvent = ReviewCreatedEvent.builder()
+                .reservationId(reservation.getId())
+                .reviewId(savedReview.getId())
+                .comment(savedReview.getComment())
+                .clientId(reservation.getIdClient())
+                .providerId(reservation.getIdProvider())
+                .isRecommended(savedReview.getIsRecommended())
+                .build();
+
+        reviewEventProducer.sendReviewCreatedEvent(reviewCreatedEvent);
 
         // 5. Response Mapping
         return reviewMapper.toResponse(savedReview);

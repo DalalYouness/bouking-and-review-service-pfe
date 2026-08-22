@@ -1,7 +1,10 @@
 package com.dalal.boukingandreviewservicepfe.dtos.event;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 
+@Builder
 public record ReviewCreatedEvent(
         Long reviewId,
         Long reservationId,

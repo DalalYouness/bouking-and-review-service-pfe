@@ -1,9 +1,10 @@
 package com.dalal.boukingandreviewservicepfe.dtos.event;
 
 import com.dalal.boukingandreviewservicepfe.enums.BookingStatus;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
-
+@Builder
 public record ReservationCreatedEvent(
         Long bookingId,
         Long clientId,

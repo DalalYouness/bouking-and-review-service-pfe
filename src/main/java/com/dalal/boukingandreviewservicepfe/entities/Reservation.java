@@ -39,6 +39,14 @@ public class Reservation {
     @Column(name = "id_service", nullable = false)
     private Long idService;
 
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
     @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)
     private Review review;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
