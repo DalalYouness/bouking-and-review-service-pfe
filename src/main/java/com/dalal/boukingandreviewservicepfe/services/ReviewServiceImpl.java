@@ -64,7 +64,7 @@ public class ReviewServiceImpl implements ReviewService {
         // 4. Persistence
         Review savedReview = reviewRepository.save(review);
 
-        // async
+        // async kafka
         ReviewCreatedEvent reviewCreatedEvent = ReviewCreatedEvent.builder()
                 .reservationId(reservation.getId())
                 .reviewId(savedReview.getId())
